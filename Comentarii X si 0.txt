@@ -1,0 +1,136 @@
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <conio.h>
+using namespace std;
+char tabla[4][4], Jucator = 'X', Castigator; //jucator = poate fi X sau 0
+int posLin = 1, posCol = 1; // locul unde ne este cursorul nostru
+char mesaj[100]; //o variabila in care o sa copiem diferite mesaje
+void afisare()
+{
+    int i, j;
+    system ("CLS"); //curatam consola
+    cout << mesaj << '\n'; //afisam un mesaj daca avem
+    for(i = 1; i <= 3; i++) //parcurgem matricea si afisam tabla
+    {
+        for(j = 1; j <= 3; j++)
+        {
+            if(posLin == i && posCol == j) // cursorul de afiseaza cu *
+                cout << "*";
+            else
+                cout << tabla[i][j];//afisam un caracter
+            if(j < 3)
+                cout << "|"; //dupa o bara
+        }
+        cout << '\n';
+        if(i < 3) //da fiecare sfarsit de linie afisam stratul
+            cout << "-----\n";
+    }
+    cout << "Este randul lui: " << Jucator << '\n'; //afisam randul cui este
+}
+int gataJoc() // toate pisibilitatile de a se sfarsii un joc de X si 0
+{
+    int i, j, spatiu = 0; // in spatiu numaram spatiile
+    for(i = 1; i <= 3; i++)
+    {
+        if(tabla[i][1] == tabla[i][2] && tabla[i][2] == tabla[i][3] && tabla[i][1] != ' ')
+        {
+            Castigator = tabla[i][1];
+            return 1;
+        }
+        if(tabla[1][i] == tabla[2][i] && tabla[2][i] == tabla[3][i] && tabla[1][i] != ' ')
+        {
+            Castigator = tabla[1][i];
+            return 1;
+        }
+    }
+    if(tabla[1][1] == tabla[2][2] && tabla[2][2] == tabla[3][3] && tabla[1][1] != ' ')
+    {
+        Castigator = tabla[1][1];
+        return 1;
+    }
+    if(tabla[1][3] == tabla[2][2] && tabla[2][2] == tabla[3][1] && tabla[1][3] != ' ')
+    {
+        Castigator = tabla[1][3];
+        return 1;
+    }
+    for(i = 1; i <= 3; i++)
+        for(j = 1; j <= 3; j++)
+            if(tabla[i][j] == ' ')
+                spatiu = 1;
+    if(spatiu)
+        return 0;
+    else //daca nimeni nu a castigat inca si nu mai sunt locuri libere se va afisa remiza
+    {
+        Castigator = 'R';
+        return 1;
+    }
+}
+void comenzi()
+{
+    while(!gataJoc()) //verificam daca jocul nu sa terminat
+    {
+        afisare(); //afisam ce avem pana acum
+        if(_kbhit()) //verificam daca sa apasat vre-o tasta
+        {
+            switch(_getch()) //se verifica care tasta sa apasat
+            { //daca se apasa w a s d se va face urmatoarele
+                case 's' : 
+                    posLin = (posLin + 1) % 4; // pozitia ia restul lui 4 fiindca in caz ca ajungem la border sa ne apara pe cealalta parte cursorul
+                    if(posLin == 0) // daca e pe 0 se trece pe 1 deoareme matricea in care e stocata e de la 1 la 3
+                        posLin = 1;
+                    break;
+                case 'w' :
+                    posLin = (posLin - 1 + 4) % 4;
+                    if(posLin == 0)
+                        posLin = 3;
+                    break;
+                case 'd' :
+                    posCol = (posCol + 1) % 4;
+                    if(posCol == 0)
+                        posCol = 1;
+                    break;
+                case 'a' :
+                    posCol = (posCol - 1 + 4) % 4;
+                    if(posCol== 0)
+                        posCol = 3;
+                    break;
+                case 13 : // 13 = caracterul ENTER in C++
+                    if(tabla[posLin][posCol] == ' ') // daca pozitia pe care suntem este goala
+                    {
+                    tabla[posLin][posCol] = Jucator; // plasam jucatorul
+                        if(Jucator == 'X') //daca e x
+                        {
+                            Jucator = '0'; // jucatorul devine 0
+                            strcpy(mesaj, "X a fost pozitionat");
+                        }
+                        else //altfel
+                        {
+                            Jucator = 'X'; //jucatorul devine X
+                            strcpy(mesaj, "0 a fost pozitionat");
+                        }
+                    }else // daca locul e ocupat, valiabila mesaj ia urmatorul text
+                        strcpy(mesaj, "Spatiu ocupat, reincearca");
+                    break;
+            }
+        }
+    }
+    system("CLS"); // se curata consola
+    if(Castigator == 'R') // daca Castigatorul e R inseamna ca e remiza si afisam acel text
+        cout << "\n\n\n\nRemiza\n\n\n\n";
+    else //astfel afisam textul de invingator
+        cout << "\n\n\n\nCastigatorul este : " << Castigator << "\n\n\n\n";
+}
+int main()
+{
+    int i, j;   
+    for(i = 1; i <= 3; i++)  // initializez tabla de 3x3 cu spatii
+        for(j = 1; j <= 3; j++)
+            tabla[i][j] = ' ';
+    comenzi(); //dau drumul comonzilor/jocului
+    cout << "Daca doresti sa inchizi jocul scrie da: "; //asta e partea de final cand e gata jocul
+    char variabila[100];
+    cin >> variabila;
+    cout << "Esti sigur?" << '\n';
+    cin >> variabila;
+}
